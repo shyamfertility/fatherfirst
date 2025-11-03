@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FatherFirst — Early Male Fertility Platform (Prototype)</title>
+  <meta name="description" content="FatherFirst helps men engage early on fertility: andrology, hormones, immuno‑genetics, lifestyle, weekly live education, AI assistant, and WhatsApp support." />
+  <style>
+    :root{
+      --bg: #f6f7fb; --panel:#ffffff; --ink:#0f172a; --muted:#475569; --brand:#4f46e5; --brand-2:#1d4ed8;
+      --ring: rgba(79,70,229,.2); --green:#16a34a; --border:#e5e7eb;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji";color:var(--ink);background:linear-gradient(#fff, var(--bg))}
+    a{color:var(--brand);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{max-width:1160px;margin:0 auto;padding:0 16px}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;border-radius:12px;padding:.7rem 1rem;font-weight:600;border:1px solid var(--border);color:#111;background:#fff}
+    .btn:hover{background:#f8fafc}
+    .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+    .btn.primary:hover{background:#4338ca}
+    .btn.green{background:var(--green);border-color:var(--green);color:#fff}
+    .badge{display:inline-block;border:1px solid var(--border);background:#fff;border-radius:14px;padding:.4rem .7rem;font-weight:700;font-size:.8rem}
+    header.sticky{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.7);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+    nav a{color:#0f172a;margin:0 .75rem;font-weight:600}
+    nav a:hover{color:var(--brand)}
+    .grid{display:grid;gap:1rem}
+    .hero{padding:56px 0}
+    .hero h1{font-size:clamp(28px,4vw,44px);line-height:1.15;margin:0 0 .5rem}
+    .hero p{color:var(--muted);max-width:48ch}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:20px;box-shadow:0 12px 30px rgba(2,6,23,.04)}
+    .card.pad{padding:22px}
+    .services{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+    .centers{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .shorts{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+    .muted{color:var(--muted)}
+    .section{padding:56px 0}
+    footer{border-top:1px solid var(--border);background:#fff}
+    /* Modal */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;place-items:center;padding:16px;z-index:70}
+    .modal.open{display:grid}
+    .modal .panel{background:#fff;border:1px solid var(--border);border-radius:18px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(2,6,23,.25)}
+    .panel header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
+    .panel .body{padding:16px}
+    input,textarea,select{width:100%;padding:.7rem .9rem;border-radius:12px;border:1px solid var(--border);outline:none}
+    input:focus,textarea:focus,select:focus{border-color:var(--brand);box-shadow:0 0 0 4px var(--ring)}
+    label{font-weight:600;font-size:.9rem}
+    .row{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+    .hidden{display:none !important}
+    /* Chat widget */
+    #chat{position:fixed;right:16px;bottom:16px;z-index:60;width:320px;border-radius:16px;overflow:hidden}
+    #chat header{background:var(--brand);color:#fff;padding:8px 12px;display:flex;align-items:center;justify-content:space-between}
+    #chat .log{max-height:320px;overflow:auto;padding:10px;background:#fff;border-left:1px solid var(--border);border-right:1px solid var(--border)}
+    .bubble{max-width:80%;border-radius:16px;padding:8px 10px;margin:6px 0;font-size:.9rem}
+    .ai{background:#f1f5f9;color:#0f172a}
+    .me{background:var(--brand);color:#fff;margin-left:auto}
+    #chat form{display:flex;gap:6px;border:1px solid var(--border);border-top:none;padding:8px;background:#fff}
+    /* Floating WhatsApp */
+    .wa-fab{position:fixed;right:16px;bottom:84px;background:var(--green);color:#fff;border-radius:999px;padding:.9rem 1rem;font-weight:700;box-shadow:0 10px 30px rgba(22,163,74,.4);z-index:55}
+    .print-hide{ }
+    @media print{ .print-hide{display:none !important} header,footer,#chat,.wa-fab{display:none !important} .section{page-break-inside:avoid} }
+  </style>
+</head>
+<body>
+  <header class="sticky">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#1d4ed8)"></div>
+        <strong>FatherFirst</strong>
+        <span class="badge print-hide">Male Fertility • Early Care</span>
+      </div>
+      <nav class="print-hide">
+        <a href="#services">Services</a>
+        <a href="#centers">Centers</a>
+        <a href="#learn">Learn</a>
+        <a href="#testimonials">Success</a>
+        <a href="#store">Store</a>
+      </nav>
+      <div class="print-hide" style="display:flex;gap:8px">
+        <button class="btn" onclick="openScreener()">3‑min Screener</button>
+        <button class="btn" onclick="openAuth()">Login / Sign up</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container grid" style="grid-template-columns:1.1fr .9fr;align-items:center;gap:28px">
+        <div>
+          <h1>Give Fatherhood a Head‑Start</h1>
+          <p>Engage early. Test smarter. Improve faster. FatherFirst optimizes male fertility with andrology, hormones, immuno‑genetics, and lifestyle medicine — so fewer couples need IVF later.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px" class="print-hide">
+            <button class="btn primary" onclick="openScreener()">Start 3‑min Male Fertility Screener</button>
+            <button class="btn" onclick="openAuth()">Book Assessment</button>
+            <a id="waHero" class="btn" target="_blank" rel="noreferrer">Chat on WhatsApp</a>
+          </div>
+          <div class="muted" style="font-size:.8rem;margin-top:6px">Current time (IST): <span id="nowIST">—</span></div>
+        </div>
+        <div>
+          <div class="card" style="border-radius:26px;overflow:hidden">
+            <div class="grid" style="grid-template-columns:1fr 1fr">
+              <div class="pad">
+                <div class="badge">Andrology · WHO 2021</div>
+                <div style="height:40px"></div>
+                <div class="badge">Hormones · FSH • LH • T</div>
+                <div style="height:40px"></div>
+                <div class="badge">Immuno‑Genetics · Risk flags</div>
+              </div>
+              <div class="pad" style="background:linear-gradient(#eef2ff,#fff)">
+                <div class="badge">Lifestyle · Yoga • Diet</div>
+                <div style="height:40px"></div>
+                <div class="badge">AI Assistant · Ask anything</div>
+                <div style="height:40px"></div>
+                <div class="badge">Centres · Bengaluru</div>
+              </div>
+            </div>
+          </div>
+          <span class="badge" style="position:relative;top:8px;left:6px;background:#4f46e5;color:#fff">Prototype</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services -->
+    <section id="services" class="section">
+      <div class="container">
+        <h2 style="margin:0 0 6px">What We Do</h2>
+        <p class="muted" style="margin:0 0 18px">A complete male fertility pathway — evaluate early, treat precisely, track progress, and teach continuously.</p>
+        <div class="grid services">
+          <article class="card pad">
+            <h3>Andrology Evaluation (WHO 2021)</h3>
+            <p class="muted">Comprehensive semen analysis: volume, count, motility, morphology, vitality, DFI (DNA fragmentation).</p>
+            <ul class="muted" style="padding-left:18px">
+              <li>Collection guidance, 2–7 days abstinence</li>
+              <li>Strict morphology (Kruger)</li>
+              <li>Report in 24–48h</li>
+            </ul>
+            <a href="#book">Learn more →</a>
+          </article>
+          <article class="card pad">
+            <h3>Hormone Panel</h3>
+            <p class="muted">Evaluate the axis driving spermatogenesis: FSH, LH, Testosterone, Prolactin, Estradiol, TSH — with clinical interpretation.</p>
+            <ul class="muted" style="padding-left:18px">
+              <li>Hypogonadism workup</li>
+              <li>Varicocele considerations</li>
+              <li>Medication effects</li>
+            </ul>
+            <a href="#book">Learn more →</a>
+          </article>
+          <article class="card pad">
+            <h3>Immuno‑Genetic Profiling</h3>
+            <p class="muted">Identify immunologic and genetic factors impacting fertility. Tailored pathway for early intervention.</p>
+            <ul class="muted" style="padding-left:18px">
+              <li>Karyotype basics</li>
+              <li>Y‑microdeletion screen</li>
+              <li>CFTR as indicated</li>
+            </ul>
+            <a href="#book">Learn more →</a>
+          </article>
+          <article class="card pad">
+            <h3>Lifestyle & Yoga</h3>
+            <p class="muted">Correct nutrition, sleep, stress, weight, and targeted yoga — the foundations of better sperm health.</p>
+            <ul class="muted" style="padding-left:18px">
+              <li>Dietitian counseling</li>
+              <li>Yoga video library</li>
+              <li>Alcohol/smoking plan</li>
+            </ul>
+            <a href="#book">Learn more →</a>
+          </article>
+          <article class="card pad">
+            <h3>Medicines & Supplements</h3>
+            <p class="muted">Curated cart (prescription where needed). Quality‑checked antioxidants, micronutrients, and adjuncts.</p>
+            <ul class="muted" style="padding-left:18px">
+              <li>Doctor‑guided</li>
+              <li>Refill reminders</li>
+              <li>Secure checkout (soon)</li>
+            </ul>
+            <a href="#store">Browse pilot items →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Centers -->
+    <section id="centers" class="section">
+      <div class="container">
+        <div style="display:flex;align-items:end;justify-content:space-between;gap:12px">
+          <div>
+            <h2 style="margin:0 0 6px">Centers — Bengaluru</h2>
+            <p class="muted" style="margin:0">We start local and expand rapidly. Book the nearest FatherFirst center.</p>
+          </div>
+          <a href="#book" class="btn primary print-hide">Book Now</a>
+        </div>
+        <div class="grid centers" style="margin-top:16px">
+          <div class="card pad"><strong>JP Nagar</strong><div class="muted">South Bengaluru</div><div style="margin-top:10px"><a class="btn" target="_blank" rel="noreferrer" href="https://maps.google.com/?q=JP+Nagar+Bengaluru">Directions</a> <a class="btn" href="#book">Book</a></div></div>
+          <div class="card pad"><strong>Indiranagar</strong><div class="muted">East Bengaluru</div><div style="margin-top:10px"><a class="btn" target="_blank" rel="noreferrer" href="https://maps.google.com/?q=Indiranagar+Bengaluru">Directions</a> <a class="btn" href="#book">Book</a></div></div>
+          <div class="card pad"><strong>Whitefield</strong><div class="muted">East Bengaluru</div><div style="margin-top:10px"><a class="btn" target="_blank" rel="noreferrer" href="https://maps.google.com/?q=Whitefield+Bengaluru">Directions</a> <a class="btn" href="#book">Book</a></div></div>
+          <div class="card pad"><strong>Jayanagar</strong><div class="muted">Central Bengaluru</div><div style="margin-top:10px"><a class="btn" target="_blank" rel="noreferrer" href="https://maps.google.com/?q=Jayanagar+Bengaluru">Directions</a> <a class="btn" href="#book">Book</a></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Learn -->
+    <section id="learn" class="section">
+      <div class="container grid" style="grid-template-columns:1fr 1fr;gap:18px">
+        <div class="card pad">
+          <h3>Live Weekly Class</h3>
+          <p class="muted">Join our free male fertility session — ask questions live.</p>
+          <div class="card pad" style="background:#eef2ff;border-color:#c7d2fe;margin-top:10px">
+            <div class="muted" style="font-size:.9rem">Next session (IST):</div>
+            <div id="nextLive" style="font-weight:800"></div>
+          </div>
+          <div style="margin-top:12px" class="print-hide">
+            <a class="btn primary" href="#book">Reserve seat</a>
+            <a class="btn" target="_blank" rel="noreferrer" href="https://youtube.com/shorts">YouTube Live</a>
+          </div>
+        </div>
+        <div class="card pad">
+          <h3>Shorts & Reels</h3>
+          <p class="muted">Byte‑sized learning, daily tips, and myth‑busters.</p>
+          <div class="grid shorts" style="margin-top:10px">
+            <div class="card" style="aspect-ratio:9/16;overflow:hidden"><iframe title="What lowers sperm count?" width="100%" height="100%" src="https://www.youtube.com/embed/bWE7XqY9" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+            <div class="card" style="aspect-ratio:9/16;overflow:hidden"><iframe title="3 foods for sperm health" width="100%" height="100%" src="https://www.youtube.com/embed/GfQ3p1Za" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+            <div class="card" style="aspect-ratio:9/16;overflow:hidden"><iframe title="Morning routine for testosterone" width="100%" height="100%" src="https://www.youtube.com/embed/LkP2h4Ab" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section id="testimonials" class="section">
+      <div class="container">
+        <h2 style="margin:0 0 12px;text-align:center">Patient Voices</h2>
+        <div class="card pad" style="max-width:720px;margin:0 auto;text-align:center">
+          <blockquote id="quote" style="font-size:1.05rem">“I never knew early testing could change our path. 3 months of focused plan improved my parameters.”</blockquote>
+          <div id="quoteName" class="muted" style="margin-top:6px;font-weight:700">— Rahul, 34</div>
+          <div style="display:flex;gap:6px;justify-content:center;margin-top:10px">
+            <button class="btn" onclick="setTestimonial(0)">1</button>
+            <button class="btn" onclick="setTestimonial(1)">2</button>
+            <button class="btn" onclick="setTestimonial(2)">3</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Store (pilot) -->
+    <section id="store" class="section">
+      <div class="container">
+        <div style="display:flex;align-items:end;justify-content:space-between">
+          <div>
+            <h2 style="margin:0 0 6px">Store (Pilot)</h2>
+            <p class="muted" style="margin:0">Clinical‑grade supplements. Prescription meds available after consultation.</p>
+          </div>
+          <button class="btn print-hide">View Cart (0)</button>
+        </div>
+        <div class="grid services" style="margin-top:16px">
+          <div class="card pad"><div style="font-weight:800">Antioxidant Matrix (90 days)</div><div class="muted">CoQ10, Zinc, Selenium, Lycopene — doctor‑curated</div><div style="font-weight:900;margin-top:6px">₹ 1499</div><div style="margin-top:10px"><button class="btn">Details</button> <button class="btn primary">Add</button></div></div>
+          <div class="card pad"><div style="font-weight:800">D3 + K2 (60 caps)</div><div class="muted">Bone & hormone synergy</div><div style="font-weight:900;margin-top:6px">₹ 699</div><div style="margin-top:10px"><button class="btn">Details</button> <button class="btn primary">Add</button></div></div>
+          <div class="card pad"><div style="font-weight:800">Omega‑3 (60 caps)</div><div class="muted">EPA/DHA for sperm membrane health</div><div style="font-weight:900;margin-top:6px">₹ 999</div><div style="margin-top:10px"><button class="btn">Details</button> <button class="btn primary">Add</button></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dashboard (appears when logged in) & Admin Broadcast -->
+    <section id="dashboard" class="section hidden">
+      <div class="container">
+        <div class="card pad">
+          <h3 id="hello">Welcome</h3>
+          <p class="muted">Here’s your quick start checklist.</p>
+          <ol style="padding-left:18px">
+            <li>Book Andrology evaluation (JP Nagar/Indiranagar)</li>
+            <li>Complete hormone panel (FSH, LH, T, PRL, E2, TSH)</li>
+            <li>Start 8‑week lifestyle reset (sleep, yoga, diet)</li>
+          </ol>
+          <div id="lastBroadcast" class="card pad hidden" style="background:#eef2ff;border-color:#c7d2fe;margin-top:10px"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="broadcast" class="section hidden">
+      <div class="container">
+        <div class="card pad">
+          <h3>Admin: Broadcast a Tip</h3>
+          <p class="muted">Write a short lifestyle tip. This will be sent via WhatsApp/SMS/Push once your backend is connected.</p>
+          <textarea id="tip" rows="3" placeholder="Tonight at 9 PM IST: We go live on ‘3 habits for better sperm health’. Click here…"></textarea>
+          <div style="margin-top:10px;display:flex;gap:10px;align-items:center">
+            <button class="btn primary" onclick="sendBroadcast()">Send broadcast</button>
+            <span id="status" class="muted"></span>
+          </div>
+          <div class="muted" style="font-size:.8rem;margin-top:6px">Hook up Twilio/WhatsApp Cloud API on NOTIFY_WEBHOOK for automatic phone notifications.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Book (anchor) -->
+    <section id="book" class="section">
+      <div class="container card pad">
+        <h3>Book Assessment</h3>
+        <p class="muted">New to FatherFirst? Start by signing up so we can coordinate your nearest center and tests.</p>
+        <div class="print-hide"><button class="btn primary" onclick="openAuth()">Login / Sign up to book</button></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="section">
+    <div class="container" style="display:grid;grid-template-columns:1.7fr 1fr 1fr 1fr;gap:16px">
+      <div>
+        <div style="font-weight:800">FatherFirst</div>
+        <div class="muted">Early male fertility care across Bengaluru. © <span id="year"></span></div>
+      </div>
+      <div>
+        <div style="font-weight:700">Resources</div>
+        <div><a href="#learn">Weekly Live</a></div>
+        <div><a href="#learn">Shorts & Reels</a></div>
+        <div><a href="#services">Andrology Protocol</a></div>
+      </div>
+      <div>
+        <div style="font-weight:700">Company</div>
+        <div><a href="#centers">Centers</a></div>
+        <div><a href="#book">Careers (Soon)</a></div>
+        <div><a href="#">Press Kit (Soon)</a></div>
+      </div>
+      <div>
+        <div style="font-weight:700">Legal</div>
+        <div class="muted" style="font-size:.85rem">Information is educational, not medical advice. Consult a qualified physician. By using this site you agree to our <a href="#">Terms</a> and <a href="#">Privacy</a>.</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp -->
+  <a id="waFab" class="wa-fab print-hide" target="_blank" rel="noreferrer">WhatsApp</a>
+
+  <!-- Chat Widget -->
+  <div id="chat" class="card print-hide">
+    <header>
+      <strong>FatherFirst Assistant</strong>
+      <button style="background:transparent;border:0;color:#fff;font-weight:800" onclick="toggleChat()" aria-label="Toggle">–</button>
+    </header>
+    <div class="log" id="chatLog"></div>
+    <form onsubmit="sendMsg(event)">
+      <input id="chatInput" placeholder="Ask about tests, timing…" />
+      <button class="btn primary" type="submit">Send</button>
+    </form>
+    <a id="waInChat" class="btn green" style="border-radius:0" target="_blank" rel="noreferrer">WhatsApp a clinician</a>
+  </div>
+
+  <!-- Auth Modal -->
+  <div id="authModal" class="modal">
+    <div class="panel">
+      <header>
+        <strong id="authTitle">Create your account</strong>
+        <button class="btn" onclick="closeAuth()">✕</button>
+      </header>
+      <div class="body">
+        <div style="display:flex;gap:8px;margin-bottom:10px" class="print-hide">
+          <button id="btnSignup" class="btn primary" onclick="setAuthMode('signup')">Sign up</button>
+          <button id="btnLogin" class="btn" onclick="setAuthMode('login')">Login</button>
+        </div>
+        <form id="authForm" onsubmit="submitAuth(event)">
+          <div id="signupFields">
+            <label>Full Name
+              <input id="name" placeholder="e.g., Rahul Sharma" required />
+            </label>
+            <div class="row">
+              <label>City
+                <input id="city" placeholder="Bengaluru" />
+              </label>
+              <div></div>
+            </div>
+          </div>
+          <label>Email
+            <input id="email" type="email" placeholder="you@email.com" required />
+          </label>
+          <label>Phone (WhatsApp preferred)
+            <input id="phone" type="tel" placeholder="+91…" required />
+          </label>
+          <label>Password
+            <input id="pwd" type="password" placeholder="••••••••" required />
+          </label>
+          <button class="btn primary" type="submit" style="width:100%;margin-top:8px">Continue</button>
+          <div id="authMsg" class="muted" style="margin-top:6px"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screener Modal -->
+  <div id="screenerModal" class="modal">
+    <div class="panel">
+      <header>
+        <strong>3‑min Male Fertility Screener</strong>
+        <button class="btn" onclick="closeScreener()">✕</button>
+      </header>
+      <div class="body">
+        <div id="sStep"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">
+          <div class="muted" id="sProgress"></div>
+          <button class="btn primary" id="sNext">Next</button>
+        </div>
+        <div id="sDone" class="hidden" style="margin-top:10px">
+          <div class="card pad" style="background:#ecfdf5;border-color:#86efac;color:#065f46">Thanks! Your quick inputs help us tailor your first visit. We recommend semen analysis + hormone panel as a starting point.</div>
+          <div style="display:flex;gap:8px;margin-top:10px" class="print-hide">
+            <button class="btn primary" onclick="submitScreener()">Save & Close</button>
+            <a id="waScreener" class="btn" target="_blank" rel="noreferrer">Send on WhatsApp</a>
+            <button class="btn" onclick="window.print()">Print Summary</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== CONFIG =====
+    const SHEETS_WEBHOOK = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec'; // replace
+    const NOTIFY_WEBHOOK = 'https://api.yourserver.com/notify'; // replace
+    const WHATSAPP_NUMBER_E164 = '+919999999999'; // replace
+
+    // ===== UTIL =====
+    const $ = (sel) => document.querySelector(sel);
+    function nowIST(){ return new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'}); }
+    function setText(id, txt){ const el = (typeof id==='string')? $(id): id; if(el) el.textContent = txt; }
+    function openAuth(){ $('#authModal').classList.add('open'); }
+    function closeAuth(){ $('#authModal').classList.remove('open'); }
+    function openScreener(){ $('#screenerModal').classList.add('open'); startScreener(); }
+    function closeScreener(){ $('#screenerModal').classList.remove('open'); }
+
+    // ===== STORE =====
+    const store = {
+      readUsers(){ try{return JSON.parse(localStorage.getItem('ff_users')||'[]')}catch{return []} },
+      writeUsers(list){ localStorage.setItem('ff_users', JSON.stringify(list)); },
+      addUser(u){ const list=this.readUsers(); const exists=list.some(x=>x.email===u.email||x.phone===u.phone); if(!exists){list.push(u);this.writeUsers(list);} return !exists; },
+      current(){ try{return JSON.parse(localStorage.getItem('ff_current')||'null')}catch{return null} },
+      setCurrent(u){ localStorage.setItem('ff_current', JSON.stringify(u)); },
+    };
+    function isAdmin(user){ if(!user) return false; const e=(user.email||'').toLowerCase(); return e.endsWith('@fatherfirst.health') || e.includes('admin'); }
+
+    // ===== AUTH =====
+    let authMode='signup';
+    function setAuthMode(mode){ authMode=mode; setText('#authTitle', mode==='signup'? 'Create your account':'Login');
+      $('#btnSignup').classList.toggle('primary', mode==='signup');
+      $('#btnLogin').classList.toggle('primary', mode==='login');
+      $('#signupFields').classList.toggle('hidden', mode!=='signup');
+      setText('#authMsg','');
+    }
+    function submitAuth(e){ e.preventDefault();
+      const user={ id:crypto.randomUUID(), name:$('#name')?.value||'', city:$('#city')?.value||'', email:$('#email').value, phone:$('#phone').value };
+      try{
+        if(authMode==='signup'){
+          const added=store.addUser(user); if(!added) throw new Error('User already exists with this email/phone.');
+          fetch(SHEETS_WEBHOOK,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({...user,source:'web'})}).catch(()=>{});
+        }
+        store.setCurrent(user); refreshUserUI(); setText('#authMsg','Success! Welcome to FatherFirst.'); closeAuth();
+      }catch(err){ setText('#authMsg', err.message||'Error'); }
+    }
+
+    // ===== USER UI =====
+    function refreshUserUI(){ const u=store.current();
+      // Dashboard
+      $('#dashboard').classList.toggle('hidden', !u);
+      setText('#hello', 'Welcome, '+ (u?.name?.split(' ')[0]||'Member'));
+      // Admin broadcast
+      $('#broadcast').classList.toggle('hidden', !isAdmin(u));
+      // Update WA links
+      const wa=`https://wa.me/${WHATSAPP_NUMBER_E164.replace('+','')}`;
+      $('#waFab').href=wa; $('#waInChat').href=wa; $('#waHero').href=wa;
+      // Last broadcast
+      const last=JSON.parse(localStorage.getItem('ff_broadcast_last')||'null');
+      if(last){ const box=$('#lastBroadcast'); box.classList.remove('hidden'); box.innerHTML=`<div class="muted" style="font-size:.8rem">Latest broadcast</div><div style="font-weight:700">${last.tip}</div><div class="muted" style="font-size:.8rem">${last.when}</div>`; }
+    }
+
+    // ===== SCREENER =====
+    const steps=[
+      { key:'age', label:'Age', type:'number', placeholder:'e.g., 34' },
+      { key:'abstinence', label:'Days of abstinence before last sample', type:'number', placeholder:'e.g., 3' },
+      { key:'lifestyle', label:'Lifestyle highlights (smoking, alcohol, sleep, BMI)', type:'text', placeholder:'Short notes' },
+      { key:'meds', label:'Current meds / conditions (e.g., diabetes, thyroid)', type:'text', placeholder:'Optional' },
+      { key:'goals', label:'Your top goal (e.g., natural conception in 6 months)', type:'text', placeholder:'Your answer' },
+    ];
+    let sIndex=0; const sAns={};
+    function startScreener(){ sIndex=0; renderStep(); $('#sDone').classList.add('hidden'); }
+    function renderStep(){ if(sIndex<steps.length){ const st=steps[sIndex]; $('#sStep').innerHTML=`<label>${st.label}<input id="sInput" type="${st.type}" placeholder="${st.placeholder}"></label>`; setText('#sProgress',`Step ${sIndex+1} / ${steps.length}`); $('#sNext').onclick=()=>{ const v=$('#sInput').value; sAns[st.key]=v; sIndex++; renderStep(); }; } else { $('#sStep').innerHTML=''; $('#sProgress').textContent=''; $('#sNext').onclick=null; $('#sDone').classList.remove('hidden'); const text=encodeURIComponent('I completed the FatherFirst screener. Help me book assessment.'); $('#waScreener').href=`https://wa.me/${WHATSAPP_NUMBER_E164.replace('+','')}?text=${text}`; } }
+    function submitScreener(){ const payload={...sAns, submittedAt: nowIST(), type:'screener'}; localStorage.setItem('ff_screener', JSON.stringify(payload)); fetch(SHEETS_WEBHOOK,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(()=>{}); closeScreener(); }
+
+    // ===== TESTIMONIALS =====
+    const testimonials=[
+      { name:'Rahul, 34', quote:'I never knew early testing could change our path. 3 months of focused plan improved my parameters.' },
+      { name:'Akhil, 38', quote:'The weekly live cleared my doubts. I felt heard and got a clear roadmap.' },
+      { name:'Sanjay, 29', quote:'Yoga + diet + micronutrients — the combination worked. Highly recommend early action!' },
+    ];
+    function setTestimonial(i){ $('#quote').textContent='“'+testimonials[i].quote+'”'; $('#quoteName').textContent='— '+testimonials[i].name; }
+    setInterval(()=>{ const curr = testimonials.findIndex(t => ('— '+t.name)===($('#quoteName').textContent||'')); const next = (curr+1)%testimonials.length; setTestimonial(next); }, 5000);
+
+    // ===== CHAT =====
+    const faqPairs=[
+      { q:'what is fatherfirst', a:'We are an early-intervention male fertility platform. We assess semen, hormones, genetics, and lifestyle to improve natural conception chances and reduce future IVF need.' },
+      { q:'how soon results', a:'Many interventions begin showing impact within 8–12 weeks, aligned to spermatogenesis cycles (~74 days).' },
+      { q:'do you do ivf', a:'We focus on pre‑IVF male optimization. If IVF is required, we coordinate with partner IVF centers.' },
+    ];
+    function addLog(role, text){ const d=document.createElement('div'); d.className='bubble '+(role==='ai'?'ai':'me'); d.textContent=text; $('#chatLog').appendChild(d); $('#chatLog').scrollTop = $('#chatLog').scrollHeight; }
+    function sendMsg(e){ e.preventDefault(); const v=$('#chatInput').value.trim(); if(!v) return; addLog('me', v); const lower=v.toLowerCase(); let ans = faqPairs.find(f=> lower.includes(f.q.split(' ')[0]))?.a || 'Great question. A clinician can reply on WhatsApp within minutes — leave your number via Login → Sign up.'; if(/cost|price|fee/.test(lower)) ans='First consult is complimentary. Basic semen analysis starts ~₹900–1500; hormone panel varies. We share a clear estimate after the screener.'; if(/appointment|book|slot|when/.test(lower)) ans='You can book JP Nagar or Indiranagar now. Typical availability: 24–48h. Click “Book Assessment”.'; addLog('ai', ans); $('#chatInput').value=''; }
+    function toggleChat(){ const log=$('#chat .log'); if(log.style.display==='none'){ log.style.display='block'; $('#chat form').style.display='flex'; $('#waInChat').style.display='inline-flex'; } else { log.style.display='none'; $('#chat form').style.display='none'; $('#waInChat').style.display='none'; } }
+
+    // ===== BROADCAST =====
+    function sendBroadcast(){ const tip=$('#tip').value.trim(); if(!tip) return; const users=store.readUsers(); localStorage.setItem('ff_broadcast_last', JSON.stringify({ tip, when: nowIST() })); fetch(NOTIFY_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ tip, users })}).catch(()=>{}); setText('#status', `Broadcast queued to ${users.length} users.`); refreshUserUI(); }
+
+    // ===== DATES =====
+    function nextWeeklyLive(){ const now=new Date(); const day=now.getDay(); const diff=((6 - day + 7) % 7) || 7; const next=new Date(now); next.setDate(now.getDate()+diff); next.setHours(19,0,0,0); return next.toLocaleString('en-IN',{timeZone:'Asia/Kolkata',weekday:'short',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+
+    // ===== INIT =====
+    document.addEventListener('DOMContentLoaded', () => {
+      setText('#nowIST', nowIST()); setInterval(()=> setText('#nowIST', nowIST()), 60000);
+      setText('#year', new Date().getFullYear());
+      setText('#nextLive', nextWeeklyLive());
+      // WhatsApp links
+      const wa=`https://wa.me/${WHATSAPP_NUMBER_E164.replace('+','')}`; $('#waFab').href=wa; $('#waInChat').href=wa; $('#waHero').href=wa;
+      // Chat seed
+      addLog('ai', "Hi! I'm FatherFirst Assistant. Ask me about tests, timelines, or costs.");
+      // Default testimonial
+      setTestimonial(0);
+      // Auth mode default
+      setAuthMode('signup');
+      // User UI
+      refreshUserUI();
+    });
+  </script>
+</body>
+</html>
